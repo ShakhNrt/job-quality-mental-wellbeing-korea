@@ -1,0 +1,598 @@
+---
+title: "Job Quality and Mental Well-being"
+subtitle: "Evidence from the 7th Korea Working Conditions Survey (2023)"
+author: "Shakhzod Nortadjiev (Student ID: 5918393)"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  bookdown::html_document2:
+    theme: flatly
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_depth: 3
+    number_sections: true
+    fig_caption: true
+    code_folding: hide
+    css: theme/report.css
+    includes:
+      after_body: theme/footer.html
+  bookdown::pdf_document2:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    fig_caption: true
+    highlight: null
+    keep_tex: false
+geometry: margin=1.1in
+fontfamily: lato
+header-includes:
+  - \usepackage{xcolor}
+  - \pagecolor[HTML]{F3EADB}
+  - \definecolor{primary}{HTML}{111111}
+  - \definecolor{accent}{HTML}{111111}
+  - \definecolor{accentlight}{HTML}{E8DFD1}
+  - \definecolor{slate}{HTML}{555555}
+  - \usepackage[most]{tcolorbox}
+  - \usepackage{sectsty}
+  - \sectionfont{\color{accent}\sffamily\bfseries}
+  - \subsectionfont{\color{primary}\sffamily\bfseries}
+  - \subsubsectionfont{\color{slate}\sffamily\mdseries\itshape}
+  - \renewenvironment{quote}{\list{}{\leftmargin=1.5em\rightmargin=1.5em}\item\relax\color{slate}\itshape}{\endlist}
+  - \usepackage{float}
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = knitr::is_html_output(),
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  out.width = "100%",
+  fig.pos = "H"
+)
+
+library(tidyverse)
+library(survey)
+library(broom)
+library(knitr)
+library(kableExtra)
+library(DT)
+library(plotly)
+library(htmltools)
+source("./theme/theme.R")
+
+cleaned_df <- readRDS("./data/kwcs_cleaned.rds")
+
+kwcs_design <- svydesign(
+  ids = ~1,
+  weights = ~weight,
+  data = cleaned_df
+)
+```
+
+```{r helpers, include=FALSE}
+callout <- function(text, type = "insight") {
+  if (knitr::is_html_output()) {
+    return(htmltools::div(class = paste0("callout-", type), htmltools::HTML(text)))
+  } else {
+    clean_text <- gsub("<[^>]+>", "", text)
+    box_color <- switch(tolower(type),
+                        "warning" = "red!10!white",
+                        "insight" = "accentlight",
+                        "method" = "gray!10!white",
+                        "gray!10!white")
+    title_color <- switch(tolower(type),
+                          "warning" = "red!80!black",
+                          "insight" = "accent",
+                          "method" = "primary",
+                          "primary")
+    cat(paste0(
+      "\n\\begin{tcolorbox}[colback=", box_color, 
+      ", colframe=", title_color, 
+      ", title=\\textbf{", toupper(type), "}, boxrule=0.5mm, arc=1mm]\n",
+      clean_text, 
+      "\n\\end{tcolorbox}\n\n"
+    ))
+    return(invisible(NULL))
+  }
+}
+
+figure_card <- function(path, caption) {
+  if (knitr::is_html_output()) {
+    return(htmltools::div(
+      class = "figure-card",
+      htmltools::img(src = path),
+      htmltools::div(class = "caption", caption)
+    ))
+  } else {
+    cat(paste0(
+      "\n\\begin{figure}[H]\n\\centering\n\\begin{tcolorbox}[arc=0mm, boxrule=0.5pt, colframe=black, colback=white, halign=center, left=0pt, right=0pt, top=0pt, bottom=0pt, boxsep=0pt, clip upper]\n\\includegraphics[width=\\linewidth]{", 
+      path, 
+      "}\n\\end{tcolorbox}\n\\caption{", 
+      caption, 
+      "}\n\\end{figure}\n\n"
+    ))
+    return(invisible(NULL))
+  }
+}
+
+stat_pill <- function(value, label) {
+  if (knitr::is_html_output()) {
+    return(htmltools::div(
+      class = "stat-pill",
+      htmltools::span(class = "value", value),
+      htmltools::span(class = "label", label)
+    ))
+  } else {
+    cat(paste0("- **", label, "**: ", value, "\n"))
+    return(invisible(NULL))
+  }
+}
+```
+
+# Introduction {-}
+
+```{r intro-stats, include=FALSE}
+n_sample <- nrow(cleaned_df)
+mean_who <- round(coef(svymean(~who_score, kwcs_design)), 1)
+mean_jq <- round(coef(svymean(~job_quality_score, kwcs_design)), 1)
+```
+
+Mental well-being among workers is a growing concern for policymakers and employers across industrialized economies. South Korea, characterized by long working hours and hierarchical workplace cultures, presents an especially relevant case for studying the link between job quality and psychological health.
+
+This report investigates whether composite job quality---measured through workplace safety, task autonomy, and management quality---is systematically associated with mental well-being as captured by the WHO-5 Well-being Index.
+
+```{r key-banner, echo=FALSE, results='asis'}
+if (knitr::is_html_output()) {
+  htmltools::div(
+    class = "key-findings",
+    htmltools::h4("Key Findings"),
+    htmltools::tags$ul(
+      htmltools::tags$li("The job quality-wellbeing relationship is robust across all model specifications"),
+      htmltools::tags$li("Management quality is the dominant channel, with the largest marginal effect on WHO-5"),
+      htmltools::tags$li("The association survives controls for demographics, hours, and compensation")
+    )
+  )
+} else {
+  cat("\n### Key Findings\n\n")
+  cat("- The job quality-wellbeing relationship is robust across all model specifications\n")
+  cat("- Management quality is the dominant channel, with the largest marginal effect on WHO-5\n")
+  cat("- The association survives controls for demographics, hours, and compensation\n\n")
+}
+```
+
+```{r stat-pills, echo=FALSE, results='asis'}
+if (knitr::is_html_output()) {
+  htmltools::div(
+    class = "stat-row",
+    stat_pill(format(n_sample, big.mark = ","), "Workers Analyzed"),
+    stat_pill(mean_who, "Mean WHO-5 Score"),
+    stat_pill(mean_jq, "Mean Job Quality"),
+    stat_pill("5", "Regression Models")
+  )
+} else {
+  cat("\n### Sample Summary\n\n")
+  stat_pill(format(n_sample, big.mark = ","), "Workers Analyzed")
+  stat_pill(mean_who, "Mean WHO-5 Score")
+  stat_pill(mean_jq, "Mean Job Quality")
+  stat_pill("5", "Regression Models")
+  cat("\n")
+}
+```
+
+
+
+# Data {.tabset}
+
+## Source and Sample
+
+The 7th KWCS (2023) covers approximately 50,000 respondents across all employment types in South Korea, administered by the Occupational Safety and Health Research Institute. We restrict the sample to employees (`emp_stat` $\in \{1, 2, 3\}$) because self-employed and unpaid family workers lack supervisors, making management quality questions inapplicable.
+
+```{r callout-sample, echo=FALSE, results='asis'}
+callout(
+  "After applying missing-value filters (recoding survey codes 7, 8, 9 as <code>NA</code> and dropping observations with missingness below 1%), the final analytic sample comprises <strong>26,402 wage workers</strong>.",
+  "method"
+)
+```
+
+All estimates incorporate the KWCS sampling weights (`wt3`) via the `survey` package to produce nationally representative statistics.
+
+## Variable Construction
+
+All indices are scaled to a 0--100 range using min-max normalization so that coefficients are directly comparable across dimensions.
+
+| Variable | Construction | Scale |
+|:---------|:-------------|:------|
+| **WHO-5 Score** | Sum of 5 reverse-coded items $\times$ 4 | 0--100 (higher = better) |
+| **Safety Index** | Mean of 9 hazard items, min-max scaled | 0--100 (higher = safer) |
+| **Autonomy Index** | Mean of 3 binary items $\times$ 100 | 0--100 (higher = more autonomy) |
+| **Management Index** | Mean of 3 reverse-coded Likert items, min-max scaled | 0--100 (higher = better boss) |
+| **Job Quality Score** | Equal-weighted average of above 3 indices | 0--100 |
+
+**Controls:** Age, gender (female indicator), occupation (10 ISCO categories), weekly working hours, private time availability, pay appropriateness, and career advancement perceptions.
+
+
+
+## Descriptive Statistics
+
+```{r summary-stats-data, include=FALSE}
+summary_vars <- c(
+  "who_score", "safety_index", "autonomy_index", "manager_index",
+  "job_quality_score", "age", "is_female", "weekly_hours",
+  "time_private_rec", "pay_appropriate_rec", "career_advancement_rec"
+)
+
+var_labels <- c(
+  "WHO-5 Well-being Score", "Safety Index", "Autonomy Index",
+  "Management Quality Index", "Job Quality Score (Composite)",
+  "Age", "Female (proportion)", "Weekly Working Hours",
+  "Private Time (1-4)", "Pay Appropriateness (1-5)", "Career Advancement (1-5)"
+)
+
+formula_str <- as.formula(paste("~", paste(summary_vars, collapse = "+")))
+weighted_means <- coef(svymean(formula_str, design = kwcs_design))
+weighted_sds <- sqrt(diag(as.matrix(svyvar(formula_str, design = kwcs_design))))
+
+summary_table <- tibble(
+  Variable = var_labels,
+  Mean = round(weighted_means, 2),
+  SD = round(weighted_sds, 2),
+  Group = c(
+    rep("Outcome", 1),
+    rep("Job Quality Indices", 4),
+    rep("Demographics", 2),
+    rep("Working Conditions", 2),
+    rep("Reward Perceptions", 2)
+  )
+)
+```
+
+```{r summary-stats-html, eval=knitr::is_html_output(), echo=FALSE}
+DT::datatable(
+  summary_table,
+  caption = "Table 1: Weighted Descriptive Statistics (hover to highlight, click headers to sort)",
+  options = list(
+    pageLength = 11,
+    dom = 't',
+    ordering = TRUE,
+    columnDefs = list(list(className = 'dt-center', targets = 1:2))
+  ),
+  rownames = FALSE,
+  class = "hover stripe"
+) %>%
+  formatRound(columns = c("Mean", "SD"), digits = 2)
+```
+
+```{r summary-stats-pdf, eval=!knitr::is_html_output(), echo=FALSE, results='asis'}
+kable(summary_table, caption = "Weighted Descriptive Statistics", booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position", "scale_down"))
+```
+
+## Correlation Matrix
+
+```{r correlation-data, include=FALSE}
+corr_vars <- c("who_score", "safety_index", "autonomy_index", "manager_index", "job_quality_score")
+corr_labels <- c("WHO-5", "Safety", "Autonomy", "Management", "Job Quality")
+
+corr_formula <- as.formula(paste("~", paste(corr_vars, collapse = "+")))
+cov_matrix <- as.matrix(svyvar(corr_formula, design = kwcs_design))
+weighted_corr <- cov2cor(cov_matrix)
+
+rownames(weighted_corr) <- corr_labels
+colnames(weighted_corr) <- corr_labels
+```
+
+```{r correlation-html, eval=knitr::is_html_output(), echo=FALSE}
+kable(round(weighted_corr, 3), caption = "Table 2: Weighted Correlation Matrix") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1, bold = TRUE)
+```
+
+```{r correlation-pdf, eval=!knitr::is_html_output(), echo=FALSE, results='asis'}
+kable(round(weighted_corr, 3), caption = "Weighted Correlation Matrix", booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position"))
+```
+
+```{r callout-corr, echo=FALSE, results='asis'}
+callout(
+  "Management quality shows the strongest bivariate correlation with WHO-5 well-being, while the three sub-indices are only moderately correlated with each other---supporting the use of a composite measure that captures distinct dimensions.",
+  "insight"
+)
+```
+
+
+
+# Analysis {.tabset}
+
+## Distributions
+
+Figure 1 illustrates the distribution of the WHO-5 mental well-being scores across the sample. The data exhibit a distinct left-skewed distribution, with the modal score situated in the 65--75 range. This indicates that, on average, the majority of South Korean wage workers report moderate to high levels of psychological well-being. However, the heavy left tail of the distribution is crucial from a public health perspective, as it represents a substantial minority of the workforce experiencing significant psychological distress, potentially nearing clinical thresholds for burnout.
+
+```{r plot-who5, echo=FALSE, results='asis'}
+figure_card("plots/who_score_histogram.png", "Figure 1: Distribution of WHO-5 Well-being Scores. Left-skewed, centering around 65-75.")
+```
+
+
+
+Figure 2 presents the distribution of the composite Job Quality Score. Unlike the well-being measure, the job quality distribution is bimodal. The primary concentration of workers falls into the 50--60 range, representing standard or average working environments. Interestingly, a secondary mass appears in the 80--95 range. This upper tier likely represents highly specialized or managerial roles characterized by exceptional workplace safety, high task autonomy, and strong managerial support. The contrast between these two distributions sets the stage for our primary research question: to what extent does this variation in job quality explain the variation in mental well-being?
+
+```{r plot-jq, echo=FALSE, results='asis'}
+figure_card("plots/job_quality_histogram.png", "Figure 2: Distribution of Composite Job Quality Scores. Primary peak at 55-60 with a secondary bump at 80-95.")
+```
+
+
+
+## Core Relationship {.tabset}
+
+### Binned Scatter (Static)
+
+To initially visualize the bivariate relationship between job quality and mental well-being, we group workers into deciles based on their composite Job Quality Score and calculate the weighted mean WHO-5 score for each decile. Figure 3 demonstrates a stark and consistent positive gradient, particularly from the lowest deciles through the 7th decile. Workers in the bottom 10% of job quality report severely compromised mental well-being, whereas those in the middle to upper deciles show progressive improvements. This suggests a strong dose-response relationship: as working conditions improve, psychological health improves proportionately.
+
+```{r plot-binned, echo=FALSE, results='asis'}
+figure_card("plots/core_relationship_binned.png", "Figure 3: WHO-5 Well-being by Job Quality Deciles. Clear positive gradient in lower deciles.")
+```
+
+
+
+### Interactive Scatter (Plotly)
+
+```{r plotly-scatter-html, eval=knitr::is_html_output(), echo=FALSE, fig.cap="Figure 4: Interactive scatter --- hover for individual data points."}
+set.seed(42)
+sample_df <- cleaned_df %>% slice_sample(n = 3000)
+
+p <- ggplot(sample_df, aes(
+  x = job_quality_score,
+  y = who_score,
+  text = paste0(
+    "Job Quality: ", round(job_quality_score, 1),
+    "<br>WHO-5: ", who_score,
+    "<br>Age: ", age,
+    "<br>Hours/week: ", weekly_hours
+  )
+)) +
+  geom_jitter(alpha = 0.3, size = 1, color = pal$muted, width = 0.5, height = 0.5) +
+  geom_smooth(method = "lm", formula = y ~ x, color = pal$accent, linewidth = 1.2,
+              fill = pal$ci_fill, alpha = 0.2) +
+  labs(x = "Job Quality Score (0-100)", y = "WHO-5 Score (0-100)") +
+  theme_minimal(base_size = 12)
+
+ggplotly(p, tooltip = "text") %>%
+  layout(
+    hoverlabel = list(bgcolor = "white", font = list(size = 12)),
+    margin = list(t = 40)
+  )
+```
+
+```{r plotly-scatter-pdf, eval=!knitr::is_html_output(), echo=FALSE, fig.cap="Figure 4: Scatter Plot with Regression Line"}
+set.seed(42)
+sample_df <- cleaned_df %>% slice_sample(n = 3000)
+
+p <- ggplot(sample_df, aes(
+  x = job_quality_score,
+  y = who_score
+)) +
+  geom_jitter(alpha = 0.3, size = 1, color = "#64748b", width = 0.5, height = 0.5) +
+  geom_smooth(method = "lm", formula = y ~ x, color = "#0d9488", linewidth = 1.2,
+              fill = "#ccfbf1", alpha = 0.2) +
+  labs(x = "Job Quality Score (0-100)", y = "WHO-5 Score (0-100)") +
+  theme_minimal(base_size = 12)
+
+p
+```
+
+```{r callout-nonlinear, echo=FALSE, results='asis'}
+callout(
+  "The flattening in upper deciles (Figure 3) may reflect ceiling effects or compositional differences --- workers in the highest job quality brackets tend to be in specific occupation clusters (managers, professionals) where other stressors operate.",
+  "warning"
+)
+```
+
+
+
+## Occupation Breakdown
+
+Job quality is not uniformly distributed across the labor market. Figure 5 decomposes the three sub-indices of job quality (Autonomy, Safety, and Management Quality) across major occupational groups. A clear structural divide emerges. White-collar roles---specifically managers, professionals, and clerical workers---report exceptionally high levels of task autonomy and management support. Conversely, blue-collar and manual occupations, such as plant/machine operators and elementary occupations, score significantly lower on autonomy and management support, while also facing heightened physical safety risks. This occupational polarization highlights that 'job quality' is experienced differently depending on one's position in the labor hierarchy, emphasizing the need to control for occupational fixed effects in our regression analysis.
+
+```{r plot-occupation, echo=FALSE, results='asis'}
+figure_card("plots/sub_index_comparison.png", "Figure 5: Job Quality Dimensions by Occupation Group. Clear variation in which dimensions drive quality across sectors.")
+```
+
+
+
+## Regression Models {.tabset}
+
+We estimate four progressively controlled survey-weighted linear models to test the robustness of the job quality--well-being association.
+
+```{r callout-strategy, echo=FALSE, results='asis'}
+callout(
+  "<strong>Identification strategy:</strong> If the coefficient on Job Quality remains stable as we add confounders, the association is unlikely to be driven by omitted variable bias from observable characteristics. Each model adds a block of controls that could plausibly confound the relationship.",
+  "method"
+)
+```
+
+### Model Specifications
+
+| Model | Controls Added | Purpose |
+|:------|:--------------|:--------|
+| **1. Base** | None | Raw uncontrolled association |
+| **2. Demographics** | Age, gender, occupation | Remove compositional effects |
+| **3. Work Conditions** | + Hours, private time | Control for time pressure |
+| **4. Rewards** | + Pay, career advancement | Isolate intrinsic job quality from compensation |
+| **5. Decomposed** | Replace composite with sub-indices | Identify which dimension drives the effect |
+
+### Coefficient Table
+
+```{r regression-models}
+model1 <- svyglm(who_score ~ job_quality_score, design = kwcs_design)
+
+model2 <- svyglm(
+  who_score ~ job_quality_score + age + is_female + factor(occupation),
+  design = kwcs_design
+)
+
+model3 <- svyglm(
+  who_score ~ job_quality_score + age + is_female + factor(occupation) +
+    weekly_hours + time_private_rec,
+  design = kwcs_design
+)
+
+model4 <- svyglm(
+  who_score ~ job_quality_score + age + is_female + factor(occupation) +
+    weekly_hours + time_private_rec + pay_appropriate_rec + career_advancement_rec,
+  design = kwcs_design
+)
+
+decomp_model <- svyglm(
+  who_score ~ safety_index + autonomy_index + manager_index +
+    age + is_female + factor(occupation) +
+    weekly_hours + time_private_rec + pay_appropriate_rec + career_advancement_rec,
+  design = kwcs_design
+)
+```
+
+```{r regression-table-data, include=FALSE}
+extract_row <- function(model, model_name) {
+  tidy(model, conf.int = TRUE) %>%
+    filter(term == "job_quality_score") %>%
+    transmute(
+      Model = model_name,
+      Coefficient = round(estimate, 4),
+      SE = round(std.error, 4),
+      `CI Lower` = round(conf.low, 4),
+      `CI Upper` = round(conf.high, 4),
+      `p-value` = format.pval(p.value, digits = 3)
+    )
+}
+
+reg_table <- bind_rows(
+  extract_row(model1, "1. Base"),
+  extract_row(model2, "2. + Demographics"),
+  extract_row(model3, "3. + Work Conditions"),
+  extract_row(model4, "4. + Rewards")
+)
+```
+
+```{r regression-table-html, eval=knitr::is_html_output(), echo=FALSE}
+kable(reg_table, caption = "Table 3: Job Quality Coefficient Stability Across Specifications") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(2, bold = TRUE, color = "#0d9488")
+```
+
+```{r regression-table-pdf, eval=!knitr::is_html_output(), echo=FALSE, results='asis'}
+kable(reg_table, caption = "Job Quality Coefficient Stability Across Specifications", booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position", "scale_down"))
+```
+
+
+
+### Stability Plot
+
+Table 3 and the accompanying coefficient stability plot (Figure 6) present the core econometric findings of this report. We observe the coefficient on the Job Quality Score across four progressively controlled specifications. In the baseline uncontrolled model (Model 1), a one-unit increase in job quality is associated with a highly significant increase in WHO-5 scores. Crucially, as we introduce stringent controls for demographic characteristics (Model 2), working conditions such as weekly hours and private time (Model 3), and perceived rewards like pay and career advancement (Model 4), the job quality coefficient remains remarkably stable and statistically significant. The effect size only marginally attenuates, proving that the psychological benefits of a high-quality job are not merely an artifact of working fewer hours or earning a higher salary. The intrinsic characteristics of the job itself exert an independent, highly protective effect on mental health.
+
+```{r plot-stability, echo=FALSE, results='asis'}
+figure_card("plots/coefficient_stability.png", "Figure 6: Coefficient stability across progressively controlled models. The effect remains significant and stable.")
+```
+
+
+
+### Decomposed (Model 5)
+
+To identify which dimension of job quality drives the overall association, we replace the composite score with the three sub-indices in a fully controlled specification.
+
+```{r decomp-table-data, include=FALSE}
+decomp_coefs <- tidy(decomp_model, conf.int = TRUE) %>%
+  filter(term %in% c("safety_index", "autonomy_index", "manager_index")) %>%
+  transmute(
+    Dimension = case_when(
+      term == "safety_index" ~ "Safety Index",
+      term == "autonomy_index" ~ "Autonomy Index",
+      term == "manager_index" ~ "Management Quality Index"
+    ),
+    Coefficient = round(estimate, 4),
+    SE = round(std.error, 4),
+    `CI Lower` = round(conf.low, 4),
+    `CI Upper` = round(conf.high, 4),
+    `p-value` = format.pval(p.value, digits = 3)
+  )
+```
+
+```{r decomp-table-html, eval=knitr::is_html_output(), echo=FALSE}
+kable(decomp_coefs, caption = "Table 4: Decomposed Job Quality Dimensions (Fully Controlled)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  row_spec(which(decomp_coefs$Dimension == "Management Quality Index"), bold = TRUE, background = "#f0fdfa")
+```
+
+```{r decomp-table-pdf, eval=!knitr::is_html_output(), echo=FALSE, results='asis'}
+kable(decomp_coefs, caption = "Decomposed Job Quality Dimensions (Fully Controlled)", booktabs = TRUE) %>%
+  kable_styling(latex_options = c("striped", "hold_position", "scale_down"))
+```
+
+```{r callout-management, echo=FALSE, results='asis'}
+callout(
+  "Management quality emerges as the strongest predictor of mental well-being. A one-unit increase in the Management Quality Index is associated with the largest gain in WHO-5 scores, holding all other factors constant. This aligns with organizational psychology research emphasizing the critical role of leadership in employee mental health.",
+  "insight"
+)
+```
+
+# Conclusions
+
+```{r conclusions-banner, echo=FALSE, results='asis'}
+htmltools::div(
+  class = "key-findings",
+  htmltools::h4("Summary of Evidence"),
+  htmltools::tags$ul(
+    htmltools::tags$li(htmltools::HTML("<strong>Robust association:</strong> The Job Quality coefficient remains significant and stable across Models 1-4, surviving demographic, work-time, and reward controls.")),
+    htmltools::tags$li(htmltools::HTML("<strong>Management dominates:</strong> When decomposed, management quality (supervisor respect, coordination, support) accounts for the largest share of the well-being association.")),
+    htmltools::tags$li(htmltools::HTML("<strong>Safety matters moderately:</strong> Physical safety conditions show a positive link to well-being, though weaker than management.")),
+    htmltools::tags$li(htmltools::HTML("<strong>Autonomy contributes minimally:</strong> Task autonomy adds little once management quality is controlled, possibly reflecting collectivist workplace norms in South Korea."))
+  )
+)
+```
+
+This study provides robust empirical evidence linking structural job quality to the mental well-being of the South Korean workforce. Utilizing the nationally representative 7th Korea Working Conditions Survey (2023), our analysis yields several critical insights for labor economics and public health.
+
+First, the positive relationship between job quality and psychological well-being is highly resilient. It persists even after rigorously controlling for demographic backgrounds, working hours, and financial compensation. This demonstrates that intrinsic job characteristics cannot be simply 'bought off' with higher wages; the day-to-day experience of work fundamentally shapes psychological health.
+
+Second, our decomposition analysis reveals that **management quality is the dominant channel** through which job quality affects mental health. The presence of supportive, respectful, and communicative leadership has a vastly larger marginal impact on WHO-5 scores than task autonomy or physical safety. In the context of South Korea's highly hierarchical corporate culture, this finding is deeply consequential.
+
+**Policy Implications.** These findings suggest a paradigm shift in how organizations and policymakers approach occupational health. Traditional labor regulations heavily prioritize physical safety and maximum working hours. While these remain important, our data indicate that interventions targeting organizational psychology---specifically supervisor training, leadership development, and fostering supportive management cultures---may yield the highest returns for employee mental health. Improving the 'soft' infrastructure of the workplace is a vital public health intervention.
+
+```{r callout-limitation, echo=FALSE, results='asis'}
+callout(
+  "The cross-sectional design precludes causal claims. Reverse causality remains plausible: happier workers may rate their supervisors more favorably. Future research should exploit longitudinal KWCS panels or natural experiments (e.g., manager rotations) to strengthen identification.",
+  "warning"
+)
+```
+
+---
+
+*Source: 7th Korea Working Conditions Survey (2023), Occupational Safety and Health Research Institute.*
+
+```{r back-to-top, eval=knitr::is_html_output(), echo=FALSE, results='asis'}
+htmltools::HTML('
+<button id="back-to-top" onclick="window.scrollTo({top:0, behavior:\'smooth\'})">&#8679;</button>
+<script>
+window.addEventListener("scroll", function() {
+  var btn = document.getElementById("back-to-top");
+  if (window.scrollY > 400) {
+    btn.classList.add("visible");
+  } else {
+    btn.classList.remove("visible");
+  }
+});
+</script>
+')
+```

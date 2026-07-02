@@ -1,0 +1,331 @@
+:root {
+  --primary: #111111;
+  --accent: #111111;
+  --accent-light: #E8DFD1;
+  --amber: #f59e0b;
+  --amber-light: #fef3c7;
+  --indigo: #333333;
+  --indigo-light: #E8DFD1;
+  --bg: #F3EADB;
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --card-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--primary);
+  line-height: 1.7;
+}
+
+/* ===== Floating TOC styling ===== */
+.tocify {
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: var(--card-shadow) !important;
+  background: white !important;
+  padding: 10px 0 !important;
+}
+
+.tocify-item.active > a {
+  background: var(--accent-light) !important;
+  color: var(--accent) !important;
+  border-left: 3px solid var(--accent) !important;
+  font-weight: 600 !important;
+}
+
+.tocify a {
+  color: var(--primary) !important;
+  transition: all 0.2s ease;
+}
+
+.tocify a:hover {
+  color: var(--accent) !important;
+  padding-left: 8px !important;
+}
+
+/* ===== Section headers ===== */
+h1 {
+  color: var(--primary);
+  border-bottom: 3px solid var(--accent);
+  padding-bottom: 8px;
+  margin-top: 2.5rem;
+}
+
+h2 {
+  color: var(--primary);
+  border-left: 4px solid var(--accent);
+  padding-left: 12px;
+  margin-top: 2rem;
+}
+
+h3 {
+  color: var(--accent);
+  margin-top: 1.5rem;
+}
+
+/* ===== Key findings banner ===== */
+.key-findings {
+  background: linear-gradient(135deg, #E8DFD1 0%, #DCCFBF 100%);
+  border: 1px solid #BCAFA0;
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin: 24px 0;
+  box-shadow: var(--card-shadow);
+}
+
+.key-findings h4 {
+  color: var(--accent);
+  margin-top: 0;
+  font-size: 1.1em;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.key-findings ul {
+  margin-bottom: 0;
+}
+
+.key-findings li {
+  margin-bottom: 8px;
+}
+
+/* ===== Callout boxes ===== */
+.callout-insight {
+  background: linear-gradient(135deg, #E8DFD1 0%, #DCCFBF 100%);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 20px 0;
+  box-shadow: var(--card-shadow);
+}
+
+.callout-method {
+  background: linear-gradient(135deg, #E3D9C9 0%, #D7CDBB 100%);
+  border-left: 4px solid var(--indigo);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 20px 0;
+  box-shadow: var(--card-shadow);
+}
+
+.callout-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+  border-left: 4px solid var(--amber);
+  border-radius: 0 10px 10px 0;
+  padding: 16px 20px;
+  margin: 20px 0;
+  box-shadow: var(--card-shadow);
+}
+
+.callout-insight::before {
+  content: "Insight";
+  display: block;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.callout-method::before {
+  content: "Methodology";
+  display: block;
+  font-weight: 700;
+  color: var(--indigo);
+  margin-bottom: 6px;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.callout-warning::before {
+  content: "Limitation";
+  display: block;
+  font-weight: 700;
+  color: var(--amber);
+  margin-bottom: 6px;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Cards for figures ===== */
+.figure-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 24px 0;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.3s ease;
+}
+
+.figure-card:hover {
+  box-shadow: var(--card-shadow-hover);
+}
+
+.figure-card img {
+  border-radius: 0;
+  width: 100%;
+  border: 1px solid #111111;
+}
+
+.figure-card .caption {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9em;
+  margin-top: 12px;
+  font-style: italic;
+}
+
+/* ===== Stat pills ===== */
+.stat-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+.stat-pill {
+  background: white;
+  border-radius: 10px;
+  padding: 16px 24px;
+  box-shadow: var(--card-shadow);
+  flex: 1;
+  min-width: 140px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.stat-pill .value {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: var(--accent);
+  display: block;
+}
+
+.stat-pill .label {
+  font-size: 0.8em;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+/* ===== Tables ===== */
+.table {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.table thead th {
+  background: var(--primary) !important;
+  color: white !important;
+  font-weight: 600;
+  border: none !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #f8fafc;
+}
+
+.table-hover > tbody > tr:hover {
+  background-color: var(--accent-light) !important;
+}
+
+/* ===== Tab panels ===== */
+.nav-tabs {
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.nav-tabs > li > a {
+  border: none !important;
+  color: #64748b;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 8px 8px 0 0 !important;
+  transition: all 0.2s ease;
+}
+
+.nav-tabs > li > a:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover {
+  background: var(--accent) !important;
+  color: white !important;
+  border: none !important;
+}
+
+.tab-content {
+  padding: 20px 0;
+}
+
+/* ===== Code folding button ===== */
+.btn-default {
+  background: var(--accent-light);
+  border: 1px solid #99f6e4;
+  color: var(--accent);
+  border-radius: 6px;
+  font-size: 0.8em;
+  transition: all 0.2s ease;
+}
+
+.btn-default:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* ===== Smooth scroll ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== Back to top button ===== */
+#back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2em;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+  z-index: 999;
+}
+
+#back-to-top.visible {
+  opacity: 1;
+}
+
+#back-to-top:hover {
+  transform: scale(1.1);
+}
+
+/* ===== Print-friendly ===== */
+@media print {
+  .tocify-header,
+  #back-to-top,
+  .nav-tabs {
+    display: none !important;
+  }
+  .figure-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+  }
+}

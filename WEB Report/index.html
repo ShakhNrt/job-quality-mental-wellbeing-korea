@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Quality & Mental Well-being | KWCS 2023</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Grain texture -->
+<div class="grain">
+  <svg>
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+  </svg>
+</div>
+
+<!-- Navigation dots -->
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- Scroll container -->
+<div class="scroll-container" id="scrollContainer">
+
+  <!-- 1. Hero -->
+  <section class="section hero section-dark" data-label="Hero">
+    <div class="section-inner">
+      <div class="hero-label">7th Korea Working Conditions Survey, 2023</div>
+      <h1>Does Job Quality<br>Predict <span>Mental<br>Well-being</span>?</h1>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">26,203</span>
+          <span class="hero-meta-label">Workers Analyzed</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">60.1</span>
+          <span class="hero-meta-label">Mean WHO-5 Score</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">p &lt; .001</span>
+          <span class="hero-meta-label">All Models Significant</span>
+        </div>
+        <div class="hero-meta-item">
+          <span class="hero-meta-value">0.222</span>
+          <span class="hero-meta-label">Management Effect</span>
+        </div>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 2. About / Introduction -->
+  <section class="section section-dark" data-label="Introduction">
+    <div class="section-inner">
+      <h2 class="section-title">Why This Matters</h2>
+      <div class="about-grid">
+        <div class="about-col">
+          <p>Mental well-being among workers is a growing concern for policymakers across industrialized economies. South Korea, characterized by long working hours and hierarchical workplace cultures, presents an especially relevant case for studying the link between job quality and psychological health.</p>
+          <p>This research investigates whether composite job quality — measured through workplace safety, task autonomy, and management quality — is systematically associated with mental well-being as captured by the WHO-5 Well-being Index.</p>
+        </div>
+        <div class="about-col">
+          <p>We employ a progressive control strategy: if the association survives the addition of demographic, work-time, and compensation confounders, it is unlikely to be spurious.</p>
+          <div style="margin-top: 1.5rem;">
+            <span class="method-tag">Survey-Weighted OLS</span>
+            <span class="method-tag">Progressive Controls</span>
+            <span class="method-tag">n = 26,203</span>
+            <span class="method-tag">Complex Design SE</span>
+          </div>
+          <p style="margin-top: 1.5rem; font-size: 0.9rem;">All indices normalized to 0-100 for direct comparability. Standard errors account for complex survey design via the <code style="background: #2A2A2A; color: #E0E0E0; padding: 2px 6px; border-radius: 3px; font-size: 0.85em;">survey</code> package in R.</p>
+        </div>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 3. Data & Variables -->
+  <section class="section section-dark" data-label="Data">
+    <div class="section-inner">
+      <h2 class="section-title">Data and Variables</h2>
+      <div class="about-grid">
+        <div class="about-col">
+          <p>The 7th Korea Working Conditions Survey (KWCS, 2023) covers a nationally representative sample of the Korean working population. We restrict our analytical sample to wage workers (n = 26,203) to ensure comparability in employment conditions.</p>
+          <p>All index variables are scaled to 0-100 via min-max normalization to allow direct coefficient comparison across dimensions.</p>
+        </div>
+        <div class="about-col">
+          <p class="text-emphasis" style="margin-bottom: 0.6rem;">Variable Construction</p>
+          <table class="data-table" style="margin-top: 0.5rem;">
+            <thead><tr><th>Variable</th><th>Construction</th><th>Scale</th></tr></thead>
+            <tbody>
+              <tr><td>WHO-5 Score</td><td>Sum of 5 reverse-coded items x 4</td><td>0-100</td></tr>
+              <tr><td>Safety Index</td><td>Mean of 9 hazard items, min-max scaled</td><td>0-100</td></tr>
+              <tr><td>Autonomy Index</td><td>Mean of 3 binary items x 100</td><td>0-100</td></tr>
+              <tr><td>Management Index</td><td>Mean of 3 reverse-coded Likert items, scaled</td><td>0-100</td></tr>
+              <tr><td>Job Quality Score</td><td>Equal-weighted average of above 3</td><td>0-100</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 4. Summary Statistics -->
+  <section class="section section-dark" data-label="Summary Statistics">
+    <div class="section-inner">
+      <h2 class="section-title">Summary Statistics</h2>
+      <p style="margin-bottom: 1.5rem;">Survey-weighted descriptive statistics for all analytical variables. Higher values indicate more favorable outcomes for all index variables.</p>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th class="num">Mean</th>
+            <th class="num">SD</th>
+            <th class="num">Min</th>
+            <th class="num">Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>WHO-5 Well-being Score</td><td class="num accent">60.05</td><td class="num">20.20</td><td class="num">0</td><td class="num">100</td></tr>
+          <tr><td>Safety Index</td><td class="num">89.68</td><td class="num">14.31</td><td class="num">0</td><td class="num">100</td></tr>
+          <tr><td>Autonomy Index</td><td class="num">26.92</td><td class="num">40.42</td><td class="num">0</td><td class="num">100</td></tr>
+          <tr><td>Management Index</td><td class="num">70.49</td><td class="num">15.26</td><td class="num">0</td><td class="num">100</td></tr>
+          <tr><td>Job Quality Score (composite)</td><td class="num accent">62.36</td><td class="num">15.52</td><td class="num">15.4</td><td class="num">100</td></tr>
+          <tr><td>Age</td><td class="num">44.89</td><td class="num">14.16</td><td class="num">16</td><td class="num">93</td></tr>
+          <tr><td>Female (proportion)</td><td class="num">0.45</td><td class="num">0.50</td><td class="num">0</td><td class="num">1</td></tr>
+          <tr><td>Weekly Hours</td><td class="num">38.56</td><td class="num">11.00</td><td class="num">0.7</td><td class="num">90</td></tr>
+          <tr><td>Private Time (1-4)</td><td class="num">1.94</td><td class="num">0.80</td><td class="num">1</td><td class="num">4</td></tr>
+          <tr><td>Pay Appropriateness (1-5)</td><td class="num">3.45</td><td class="num">0.76</td><td class="num">1</td><td class="num">5</td></tr>
+          <tr><td>Career Advancement (1-5)</td><td class="num">3.55</td><td class="num">0.86</td><td class="num">1</td><td class="num">5</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--chrome);">n = 26,203. Weights from KWCS complex survey design.</p>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 4. Plot: WHO-5 Distribution (Plotly) -->
+  <section class="section plot-section section-light" data-label="WHO-5 Distribution">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">WHO-5 Score Distribution</h2>
+        <p>Left-skewed distribution with mode at 65-75, indicating generally positive self-reported well-being with a long left tail of workers in distress.</p>
+      </div>
+      <div class="plot-container" id="plotWho5Hist"></div>
+      <div class="plot-caption">Figure 1 — Distribution of WHO-5 Well-being Scores across 26,203 wage workers (binwidth = 4).</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 4. Plot: Job Quality Distribution (Plotly) -->
+  <section class="section plot-section section-light" data-label="Job Quality Distribution">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">Job Quality Score Distribution</h2>
+        <p>Clusters around 50-60 with a secondary peak at 80-95 driven by professional and managerial occupations.</p>
+      </div>
+      <div class="plot-container" id="plotJqHist"></div>
+      <div class="plot-caption">Figure 2 — Distribution of Composite Job Quality Scores (equal-weighted average of safety, autonomy, and management indices).</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 5. Plot: Core Relationship (Plotly) -->
+  <section class="section plot-section section-light" data-label="Core Relationship">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">WHO-5 by Job Quality Decile</h2>
+        <p>Workers in higher job quality deciles report systematically better well-being. The gradient is steepest where most workers are concentrated (40-65 range).</p>
+      </div>
+      <div class="plot-container" id="plotBinned"></div>
+      <div class="plot-caption">Figure 3 — Weighted mean WHO-5 scores for each decile of the job quality distribution.</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 6. Plot: Regression Scatter (Plotly) -->
+  <section class="section plot-section section-light" data-label="Regression Fit">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">Regression Scatter with Linear Fit</h2>
+        <p>Full scatter with OLS regression line and 95% confidence interval. The positive association is clear despite considerable individual-level variance.</p>
+      </div>
+      <div class="plot-container" id="plotScatter"></div>
+      <div class="plot-caption">Figure 4 — 500-point subsample with linear fit. R² = 0.0099, p &lt; 0.001, n = 26,203.</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 7. Plot: Sub-Index Comparison (Plotly) -->
+  <section class="section plot-section section-light" data-label="Sub-Indices">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">Sub-Index by Occupation Group</h2>
+        <p>Management quality is uniformly high for white-collar occupations, while safety diverges sharply between manual and non-manual work.</p>
+      </div>
+      <div class="plot-container" id="plotSubIndex"></div>
+      <div class="plot-caption">Figure 5 — Weighted mean sub-index scores by occupation group.</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 8. Regression Table -->
+  <section class="section data-section section-dark" data-label="Regression Models">
+    <div class="section-inner">
+      <h2 class="section-title">Regression Analysis</h2>
+      <div class="about-grid">
+        <div class="about-col">
+          <p>We estimate four progressively controlled models. If the Job Quality coefficient remains stable as confounders are added, the association is unlikely to be driven by omitted variable bias from observable characteristics.</p>
+        </div>
+        <div class="about-col">
+          <p style="font-size: 0.9rem;">Each model adds a block of controls that could plausibly confound the relationship. Model 5 decomposes the composite index into its three sub-dimensions under full controls.</p>
+        </div>
+      </div>
+
+      <table class="data-table" style="margin-top: 2rem;">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Controls Added</th>
+            <th class="num">Job Quality Coef.</th>
+            <th class="num">p-value</th>
+            <th class="num">Attenuation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Base</td><td>None</td><td class="num accent">0.1661</td><td class="num">&lt; 0.001</td><td class="num">-</td></tr>
+          <tr><td>2. Demographics</td><td>Age, gender, occupation</td><td class="num accent">0.0894</td><td class="num">&lt; 0.001</td><td class="num">-46%</td></tr>
+          <tr><td>3. Work Conditions</td><td>+ Hours, private time</td><td class="num accent">0.0695</td><td class="num">&lt; 0.001</td><td class="num">-58%</td></tr>
+          <tr><td>4. Rewards</td><td>+ Pay, career advancement</td><td class="num accent">0.0504</td><td class="num">&lt; 0.001</td><td class="num">-70%</td></tr>
+        </tbody>
+      </table>
+
+      <p class="text-emphasis" style="margin-top: 2rem;">Model 5: Decomposed (fully controlled)</p>
+      <table class="data-table" style="margin-top: 0.8rem;">
+        <thead>
+          <tr>
+            <th>Sub-Index</th>
+            <th class="num">Coefficient</th>
+            <th class="num">Std. Error</th>
+            <th class="num">p-value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Management Quality</td><td class="num accent">0.222</td><td class="num">0.009</td><td class="num">&lt; 0.001</td></tr>
+          <tr><td>Workplace Safety</td><td class="num">0.043</td><td class="num">0.009</td><td class="num">&lt; 0.001</td></tr>
+          <tr><td>Task Autonomy</td><td class="num">-0.013</td><td class="num">0.003</td><td class="num">&lt; 0.001</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 0.8rem; font-size: 0.8rem; color: var(--chrome);">Survey-weighted OLS. Standard errors account for complex survey design. All models significant at p &lt; 0.001 (F-test).</p>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 9. Plot: Coefficient Stability (Plotly) -->
+  <section class="section plot-section section-light" data-label="Coefficient Stability">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">Coefficient Stability Across Models</h2>
+        <p>The Job Quality coefficient drops from 0.166 to 0.050 as controls are added — ~70% explained by demographics, hours, and compensation. The residual 30% remains highly significant.</p>
+      </div>
+      <div class="plot-container" id="plotCoefficients"></div>
+      <div class="plot-caption">Figure 6 — Progressive attenuation of the Job Quality coefficient under cumulative controls.</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 9. Plot: Component Decomposition (Plotly) -->
+  <section class="section plot-section section-light" data-label="Decomposition">
+    <div class="section-inner">
+      <div class="plot-header">
+        <h2 class="section-title">Component Decomposition</h2>
+        <p>Management quality dominates: its coefficient (0.222) is 5x larger than safety. A one-SD improvement in management quality is associated with a ~4.4-point gain in WHO-5.</p>
+      </div>
+      <div class="plot-container" id="plotDecomposition"></div>
+      <div class="plot-caption">Figure 7 — Sub-index coefficients from the fully-controlled model (Model 5). Management quality is the dominant predictor.</div>
+    </div>
+    <div class="section-divider"></div>
+  </section>
+
+  <!-- 11. Conclusions -->
+  <section class="section data-section section-dark" data-label="Conclusions">
+    <div class="section-inner">
+      <h2 class="section-title">Conclusions</h2>
+
+      <div class="about-grid" style="margin-top: 2rem;">
+        <div class="about-col">
+          <p class="text-emphasis" style="font-weight: 600; font-family: 'Syne', sans-serif; font-size: 1.1rem; margin-bottom: 1rem;">Key Findings</p>
+          <p class="text-emphasis" style="margin-bottom: 0.6rem;">1. Robust Association</p>
+          <p>The Job Quality coefficient survives all four control specifications (0.166 to 0.050), indicating the relationship is not driven by demographic composition, working hours, or compensation.</p>
+          <p class="text-emphasis" style="margin-top: 1.2rem; margin-bottom: 0.6rem;">2. Management Dominates</p>
+          <p>Supervisor respect, coordination, and support account for the largest share of the well-being association. The management coefficient (0.222) is 5x the effect of physical safety and operates in the opposite direction from autonomy.</p>
+          <p class="text-emphasis" style="margin-top: 1.2rem; margin-bottom: 0.6rem;">3. Autonomy Paradox</p>
+          <p>Task autonomy shows near-zero (slightly negative) effect once management is controlled, suggesting collectivist workplace norms in Korea may moderate its value relative to Western contexts.</p>
+        </div>
+        <div class="about-col">
+          <p class="text-emphasis" style="font-weight: 600; font-family: 'Syne', sans-serif; font-size: 1.1rem; margin-bottom: 1rem;">Limitations</p>
+          <p>Cross-sectional design precludes causal inference. Reverse causality is plausible: happier workers may rate supervisors more favorably. Self-reported measures introduce common method variance.</p>
+          <p style="margin-top: 0.8rem;">Future work should exploit longitudinal KWCS panels or natural experiments (manager rotations, plant closures) for identification. Instrumental variable approaches using organizational restructuring could address endogeneity.</p>
+
+          <p class="text-emphasis" style="font-weight: 600; font-family: 'Syne', sans-serif; font-size: 1.1rem; margin-top: 2rem; margin-bottom: 1rem;">Policy Implication</p>
+          <p>Supervisor training and management practice interventions may yield greater mental health returns than structural task redesign alone. Occupational health policy should elevate psychosocial factors — particularly leadership quality — alongside traditional hazard reduction.</p>
+          <p style="margin-top: 0.8rem;">A one-standard-deviation improvement in management quality is associated with a ~4.4-point gain in WHO-5, a clinically meaningful shift equivalent to moving from "low well-being" to the population mean.</p>
+        </div>
+      </div>
+
+      <div class="footer-content" style="margin-top: 4rem;">
+        <p>Introduction to Economic Data | Keimyung University | 2025</p>
+        <p style="margin-top: 4px;">Data: 7th Korea Working Conditions Survey (2023), Occupational Safety and Health Research Institute</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

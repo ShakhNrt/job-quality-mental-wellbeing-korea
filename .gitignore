@@ -1,0 +1,19 @@
+# Large raw data files (to avoid GitHub size limits)
+data/kwcs_2023_7th_eng.xlsx
+data/kwcs_raw
+IED_Final_Project.zip
+
+# Obsidian project/meta files
+GEMINI.md
+IED Project Plan.md
+ied_final_project.md
+
+# Log files
+report.log
+
+# CLI / IDE configurations
+.antigravitycli/
+.vscode/
+.Rhistory
+.RData
+.Rproj.user/
