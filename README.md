@@ -3,6 +3,7 @@
 # Job Quality and Mental Well-being in South Korea
 **Author:** Shakhzod Nortadjiev (Student ID: 5918393)  
 **Course:** Introduction to Economic Data (IED) Final Project  
+**Live Interactive Report:** [https://shakhnrt.github.io/job-quality-mental-wellbeing-korea/](https://shakhnrt.github.io/job-quality-mental-wellbeing-korea/)  
 
 ## Overview
 This project investigates the relationship between structural job quality (autonomy, safety, and management support) and mental well-being (WHO-5 index) among South Korean wage workers, using the **7th Korea Working Conditions Survey (KWCS) 2023**. 
